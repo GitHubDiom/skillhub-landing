@@ -1,100 +1,38 @@
-# SkillHub Landing Page
+# SkillHub Manager
 
-这是一个可直接部署的静态 Landing Page，目录内只有一个 `index.html`，不依赖构建工具。
+> 把 Claude Code Skills 变成可运营资产。
 
-## 文件位置
+SkillHub Manager 是一款面向 Claude Code 用户的本地 Skills 管理桌面工具，提供可视化管理、智能推荐、快速启停与安全审计能力。
 
-- 页面文件：`skillhub-landing-page/index.html`
+## 下载
 
-## 本地预览（10 秒）
+- [macOS 版（DMG）](https://github.com/GitHubDiom/SkillHub/releases/download/v1.3.0/SkillHub-Manager-mac.dmg) — v1.3.0 测试版
+- Windows / Linux 版本即将推出
 
-直接双击打开 `index.html`，或在项目根目录执行：
+## 核心功能
 
-```bash
-open skillhub-landing-page/index.html
-```
+- **Skills Library** — 自动扫描本地 Skills，表格化展示，支持搜索、分类、收藏、启用/禁用与回收恢复
+- **Market** — 内置 GitHub 技能市场，多源加权推荐 + 一键安装，发现好 Skill 更快一步
+- **Statistics** — 总量、分类、标签与评分一目了然，数据驱动管理决策
+- **GitHub OAuth** — 一键登录，提升 API 配额，解锁完整市场体验
 
-## DMG 下载文件配置（必做）
+## 技术栈
 
-页面中的“下载 mac 版 .dmg / 立即下载 .dmg”按钮，默认指向：
+Electron + React + TypeScript + SQLite + Vite
 
-`./downloads/SkillHub-Manager-mac.dmg`
+## 版本计划
 
-请在发布前把你的安装包放到这个路径：
+| 版本 | 说明 |
+|------|------|
+| Free（当前） | 本地扫描、可视化管理、市场搜索与安装、基础统计 |
+| Pro（即将推出） | 批量管理、自动化流程、高级统计与分析报表 |
+| Team / Enterprise | 私有部署、权限策略、组织级管理 |
 
-```text
-skillhub-landing-page/downloads/SkillHub-Manager-mac.dmg
-```
+## 链接
 
-如果文件名不同，改 `index.html` 里这 3 处链接即可（当前是同一个地址）：
+- 产品主页：https://githubdiom.github.io/skillhub-landing/
+- 发布页：https://github.com/GitHubDiom/SkillHub/releases
 
-- 顶部导航下载按钮
-- Hero 下载按钮
-- 底部 CTA 下载按钮
+## License
 
-> 当前页面文案已明确：仅 macOS 版本完成测试；源码暂不开放；高级功能后续收费。
-
-## 国内可访问 + 最快上线（推荐：EdgeOne Pages 一键部署）
-
-> 适合“怎么快怎么来”的场景：接入 Git 仓库后，点击即部署，后续可自动跟随仓库更新。
-
-### 1. 先把代码推到 GitHub 或 Gitee（可用私有仓库）
-
-确保仓库中已包含 `skillhub-landing-page/index.html`。
-
-### 2. 打开一键部署链接（替换成你的仓库地址）
-
-把下面链接中的 `ENCODED_REPO_URL` 换成“URL 编码后”的仓库地址（官方文档要求参数使用 `encodeURIComponent`）：
-
-```text
-https://edgeone.ai/pages/new?repository-url=ENCODED_REPO_URL&project-name=skillhub-landing&root-directory=skillhub-landing-page
-```
-
-示例（仓库是 `https://github.com/your-name/SkillsManager` 时）：
-
-```text
-https://edgeone.ai/pages/new?repository-url=https%3A%2F%2Fgithub.com%2Fyour-name%2FSkillsManager&project-name=skillhub-landing&root-directory=skillhub-landing-page
-```
-
-快速生成编码 URL（复制即用）：
-
-```bash
-REPO_URL='https://github.com/your-name/SkillsManager'
-ENCODED_REPO_URL=$(node -e "console.log(encodeURIComponent(process.argv[1]))" "$REPO_URL")
-echo "https://edgeone.ai/pages/new?repository-url=${ENCODED_REPO_URL}&project-name=skillhub-landing&root-directory=skillhub-landing-page"
-```
-
-也可以直接用按钮（同样替换为编码后的仓库地址）：
-
-```md
-[![Deploy with EdgeOne](https://edgeone.cloud.tencent.com/pages/deploy/button)](https://edgeone.ai/pages/new?repository-url=ENCODED_REPO_URL&project-name=skillhub-landing&root-directory=skillhub-landing-page)
-```
-
-### 3. 控制台确认并发布
-
-在 EdgeOne Pages 控制台中：
-
-- 选择仓库分支（一般 `main`）
-- Root Directory 确认是 `skillhub-landing-page`
-- 发布（Deploy）
-
-发布完成后会得到一个可访问域名（例如 `*.edgeone.app`）。
-
-## 备选：命令行一条命令部署
-
-如果你不想走控制台，也可以：
-
-```bash
-npx edgeone pages deploy ./skillhub-landing-page
-```
-
-## 上线前建议（1 分钟）
-
-- 确认 `skillhub-landing-page/downloads/SkillHub-Manager-mac.dmg` 已上传
-- 如需企业官网域名，绑定自定义域名并按平台要求完成备案配置（如果使用中国大陆节点）
-
-## 参考文档（官方）
-
-- EdgeOne Pages 国内访问与免费版说明（FAQ）：https://edgeone.cloud.tencent.com/pages/document/162935477619350528
-- EdgeOne Pages 一键部署按钮参数（官方文档）：https://cloud.tencent.com/document/product/1552/118069
-- EdgeOne Pages 部署方式（Git 导入 / 直接上传 / CLI）：https://pages.edgeone.ai/zh/document/162936870006199296
+All rights reserved. This software is proprietary and not open source.
