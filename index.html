@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillHub Manager - 把 Claude Code Skills 变成可运营资产</title>
+  <meta name="description" content="SkillHub Manager 是一款面向 Claude Code 用户的本地 Skills 管理桌面工具，提供可视化管理、智能推荐、快速启停与安全审计能力。">
+  <meta property="og:title" content="SkillHub Manager - 把 Claude Code Skills 变成可运营资产">
+  <meta property="og:description" content="本地 Skills 管理不再混乱：可视化管理、GitHub 市场安装、统计分析与终端风格体验。">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#071218">
+  <style>
+    :root {
+      --bg: #071218;
+      --bg-alt: #0d1b23;
+      --card: rgba(18, 33, 42, 0.72);
+      --text: #e9f2f1;
+      --muted: #95a9ae;
+      --primary: #3be58f;
+      --primary-strong: #1acb74;
+      --cyan: #34d8f2;
+      --yellow: #ffd46a;
+      --border: rgba(144, 176, 186, 0.24);
+      --shadow: 0 22px 52px rgba(0, 0, 0, 0.35);
+      --radius: 16px;
+      --max: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 10% -10%, rgba(52, 216, 242, 0.12), transparent 60%),
+                  radial-gradient(900px 600px at 90% 0%, rgba(59, 229, 143, 0.11), transparent 60%),
+                  linear-gradient(180deg, #071218 0%, #050d13 100%);
+      font-family: "JetBrains Mono", "IBM Plex Mono", "SFMono-Regular", "Menlo", "Consolas", "PingFang SC", "Microsoft YaHei", monospace;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--max), calc(100% - 2.4rem));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+      background: rgba(7, 18, 24, 0.74);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--primary);
+      box-shadow: 0 0 0 6px rgba(59, 229, 143, 0.16);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .menu-toggle {
+      display: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: rgba(15, 29, 38, 0.76);
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 11px;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      padding: 11px 16px;
+      transition: transform .2s ease, opacity .2s ease, background .2s ease, border-color .2s ease;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button.primary {
+      color: #001309;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      box-shadow: 0 10px 22px rgba(26, 203, 116, 0.26);
+    }
+
+    .button.secondary {
+      color: var(--text);
+      background: rgba(17, 32, 41, 0.75);
+      border-color: var(--border);
+    }
+
+    .hero {
+      padding: 92px 0 58px;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(59, 229, 143, 0.45);
+      color: #bcffd7;
+      background: rgba(59, 229, 143, 0.12);
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(2.2rem, 5vw, 3.55rem);
+      line-height: 1.13;
+      letter-spacing: -0.02em;
+      max-width: 16ch;
+    }
+
+    .lead {
+      margin: 0;
+      color: #b5c7cc;
+      max-width: 56ch;
+      font-size: clamp(1rem, 2.2vw, 1.12rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 28px 0 20px;
+    }
+
+    .terminal-card {
+      background: linear-gradient(160deg, rgba(19, 36, 46, 0.82), rgba(13, 26, 34, 0.86));
+      border: 1px solid rgba(59, 229, 143, 0.2);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .terminal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 15px;
+      background: rgba(7, 15, 19, 0.68);
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .terminal-dots {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(160, 180, 186, 0.5);
+    }
+
+    .product-preview {
+      display: grid;
+      grid-template-columns: 108px 1fr 176px;
+      min-height: 290px;
+      background: linear-gradient(180deg, rgba(9, 19, 26, 0.98), rgba(9, 17, 23, 0.96));
+    }
+
+    .pp-sidebar {
+      border-right: 1px solid rgba(144, 176, 186, 0.2);
+      padding: 10px 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(10, 21, 28, 0.92);
+    }
+
+    .pp-brand {
+      font-size: 11px;
+      font-weight: 700;
+      color: #e8f7f4;
+      letter-spacing: .02em;
+    }
+
+    .pp-brand b {
+      color: var(--cyan);
+      font-weight: 800;
+    }
+
+    .pp-menu {
+      display: grid;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pp-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9cb2b8;
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .pp-item::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(156, 178, 184, 0.45);
+      flex-shrink: 0;
+    }
+
+    .pp-item.active {
+      color: #dff8f2;
+    }
+
+    .pp-item.active::before {
+      background: var(--primary);
+    }
+
+    .pp-bottom {
+      margin-top: auto;
+      font-size: 9px;
+      color: #8ea4aa;
+      border-top: 1px solid rgba(144, 176, 186, 0.18);
+      padding-top: 8px;
+      line-height: 1.3;
+    }
+
+    .pp-user-name {
+      color: #dff2ef;
+      font-weight: 700;
+      font-size: 10px;
+      margin-bottom: 2px;
+    }
+
+    .pp-user-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #9dc1b8;
+      text-transform: lowercase;
+    }
+
+    .pp-user-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--primary);
+      box-shadow: 0 0 0 4px rgba(59, 229, 143, 0.18);
+      flex-shrink: 0;
+    }
+
+    .pp-main {
+      padding: 11px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .pp-search {
+      height: 26px;
+      border: 1px solid rgba(144, 176, 186, 0.22);
+      border-radius: 8px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      color: #8fa5ab;
+      font-size: 10px;
+      background: rgba(8, 16, 22, 0.65);
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .pp-title {
+      color: #e5f4f2;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+
+    .pp-title span {
+      color: var(--primary);
+    }
+
+    .pp-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .pp-stat {
+      background: rgba(13, 27, 36, 0.88);
+      border: 1px solid rgba(144, 176, 186, 0.2);
+      border-radius: 8px;
+      padding: 6px;
+    }
+
+    .pp-stat b {
+      display: block;
+      font-size: 13px;
+      color: #f1faf8;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pp-stat small {
+      color: #8ea4aa;
+      font-size: 9px;
+      line-height: 1.2;
+      display: block;
+    }
+
+    .pp-table {
+      border: 1px solid rgba(144, 176, 186, 0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(9, 18, 24, 0.8);
+    }
+
+    .pp-row {
+      display: grid;
+      grid-template-columns: 1.4fr .9fr .5fr;
+      gap: 6px;
+      align-items: center;
+      padding: 6px 8px;
+      font-size: 9px;
+      color: #bfd0d4;
+      border-top: 1px solid rgba(144, 176, 186, 0.12);
+    }
+
+    .pp-row:first-child {
+      border-top: none;
+    }
+
+    .pp-row.head {
+      font-size: 8px;
+      color: #7f949b;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      background: rgba(8, 16, 22, 0.8);
+    }
+
+    .pp-name {
+      color: #dbf7f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pp-name::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .pp-category {
+      color: var(--cyan);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pp-status {
+      justify-self: end;
+      width: 28px;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(20, 48, 41, 0.9);
+      border: 1px solid rgba(59, 229, 143, 0.38);
+      position: relative;
+    }
+
+    .pp-status::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 14px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--primary);
+    }
+
+    .pp-status.off {
+      border-color: rgba(144, 176, 186, 0.32);
+      background: rgba(35, 44, 50, 0.8);
+    }
+
+    .pp-status.off::after {
+      left: 2px;
+      background: #91a6ab;
+    }
+
+    .pp-detail {
+      border-left: 1px solid rgba(144, 176, 186, 0.2);
+      padding: 10px 10px 11px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      background: rgba(10, 21, 28, 0.92);
+    }
+
+    .pp-detail h4 {
+      margin: 0;
+      font-size: 10px;
+      color: #88a1a7;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+      font-weight: 600;
+    }
+
+    .pp-detail-title {
+      font-size: 11px;
+      color: #e7f7f3;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .pp-detail p {
+      margin: 0;
+      font-size: 9px;
+      color: #9cb2b8;
+      line-height: 1.4;
+    }
+
+    .pp-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .pp-tags span {
+      font-size: 9px;
+      color: #cffdf0;
+      border: 1px solid rgba(59, 229, 143, 0.3);
+      background: rgba(59, 229, 143, 0.1);
+      border-radius: 999px;
+      padding: 2px 6px;
+      line-height: 1.2;
+    }
+
+    .pp-usage {
+      font-size: 9px;
+      color: var(--cyan);
+      line-height: 1.4;
+      border: 1px solid rgba(144, 176, 186, 0.2);
+      border-radius: 8px;
+      padding: 6px;
+      background: rgba(8, 16, 22, 0.65);
+    }
+
+    .pp-btn {
+      margin-top: 2px;
+      border-radius: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      color: #04120b;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+      padding: 7px 8px;
+      cursor: default;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .metrics {
+      padding: 12px 0 20px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 26px rgba(2, 5, 7, 0.35);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.58rem;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .metric small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    section {
+      padding: 66px 0;
+    }
+
+    section.alt {
+      background: linear-gradient(180deg, rgba(10, 20, 27, 0.76), rgba(9, 17, 22, 0.78));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-head {
+      margin-bottom: 30px;
+      max-width: 72ch;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.65rem, 3vw, 2.3rem);
+      line-height: 1.2;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .features {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      height: 100%;
+    }
+
+    .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      margin-bottom: 10px;
+      background: rgba(52, 216, 242, 0.18);
+      border: 1px solid rgba(52, 216, 242, 0.32);
+      color: var(--cyan);
+    }
+
+    .card h3 {
+      margin: 0 0 7px;
+      font-size: 1rem;
+      color: #f2f8f8;
+    }
+
+    .card p {
+      margin: 0;
+      color: #a5bac0;
+      font-size: .92rem;
+    }
+
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .step {
+      position: relative;
+      padding-top: 4px;
+    }
+
+    .step .num {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: #001108;
+      font-weight: 800;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--primary), #66efac);
+    }
+
+    .step h3 {
+      margin: 0 0 7px;
+      font-size: .98rem;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 18px;
+    }
+
+    .code {
+      background: rgba(6, 12, 15, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      color: #b9ccd0;
+      font-size: 13px;
+      overflow: auto;
+      line-height: 1.65;
+    }
+
+    .pricing {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pricing .card {
+      padding: 22px;
+      position: relative;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      color: #d5f1de;
+      background: rgba(59, 229, 143, 0.18);
+      border: 1px solid rgba(59, 229, 143, 0.34);
+      border-radius: 999px;
+      padding: 4px 8px;
+      margin-bottom: 9px;
+    }
+
+    .price {
+      margin: 8px 0 12px;
+      font-size: 1.95rem;
+      color: #f2fbf7;
+      letter-spacing: -0.02em;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .list {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+      color: #b8cad0;
+      font-size: .88rem;
+    }
+
+    .list li::before {
+      content: "✓";
+      color: var(--primary);
+      margin-right: 8px;
+    }
+
+    .faq {
+      display: grid;
+      gap: 11px;
+      max-width: 820px;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 0 14px;
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 0;
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    details p {
+      margin: 0;
+      padding: 0 0 14px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .cta {
+      text-align: center;
+      padding: 74px 0 80px;
+    }
+
+    .cta .box {
+      background: linear-gradient(140deg, rgba(59, 229, 143, 0.18), rgba(52, 216, 242, 0.14));
+      border: 1px solid rgba(109, 210, 191, 0.4);
+      border-radius: 18px;
+      padding: 40px 20px;
+    }
+
+    .cta h2 {
+      margin-bottom: 10px;
+    }
+
+    .cta p {
+      margin: 0 auto 20px;
+      color: #b8ccd1;
+      max-width: 64ch;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      padding: 22px 0 38px;
+      font-size: 13px;
+    }
+
+    .foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .foot-links {
+      display: inline-flex;
+      gap: 14px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .product-preview {
+        grid-template-columns: 96px 1fr 160px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .features {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .steps,
+      .pricing {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 740px) {
+      .container {
+        width: min(var(--max), calc(100% - 1.3rem));
+      }
+
+      .nav {
+        height: 64px;
+      }
+
+      .menu-toggle {
+        display: inline-grid;
+        place-items: center;
+      }
+
+      .nav-links {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        top: 70px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(7, 17, 23, 0.95);
+        padding: 12px;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .nav-links.open {
+        display: flex;
+      }
+
+      .hero {
+        padding-top: 68px;
+      }
+
+      .product-preview {
+        grid-template-columns: 76px 1fr;
+        min-height: 250px;
+      }
+
+      .pp-detail {
+        display: none;
+      }
+
+      .pp-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .pp-row {
+        grid-template-columns: 1.5fr .5fr;
+      }
+
+      .pp-row .pp-category {
+        display: none;
+      }
+
+      section {
+        padding: 52px 0;
+      }
+
+      h1 {
+        max-width: none;
+      }
+
+      .features,
+      .steps,
+      .pricing,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .site-header {
+        position: sticky;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#hero" aria-label="SkillHub Manager 首页">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span>SkillHub Manager</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="打开菜单" aria-expanded="false">≡</button>
+      <nav class="nav-links" id="navLinks">
+        <a href="#features">亮点</a>
+        <a href="#workflow">上手路径</a>
+        <a href="#pricing">版本与定价</a>
+        <a href="#faq">FAQ</a>
+        <a class="button primary" href="https://github.com/GitHubDiom/SkillHub/releases/download/v1.3.0/SkillHub-Manager-mac.dmg" download>下载 macOS 版</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero" class="container hero reveal">
+      <div>
+        <div class="badge">● v1.3.0 macOS 测试版 现已开放下载</div>
+        <h1>Skills，焕然一新。</h1>
+        <p class="lead">
+          SkillHub Manager 为重度 Claude Code 用户而生。
+          从分散、混乱，到清晰、可控，一切都被重新梳理。
+          你熟悉的终端语义，配上更优雅的桌面体验。当前仅提供并测试 macOS DMG 版本。
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="https://github.com/GitHubDiom/SkillHub/releases/download/v1.3.0/SkillHub-Manager-mac.dmg" download>立即下载 macOS 版</a>
+          <a class="button secondary" href="#pricing">查看高级版计划</a>
+        </div>
+        <p class="muted">为开发者与技术团队打造</p>
+      </div>
+      <article class="terminal-card" aria-label="SkillHub 界面预览">
+        <div class="terminal-head">
+          <span>SkillHub</span>
+          <div class="terminal-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="product-preview">
+          <aside class="pp-sidebar" aria-label="示例导航">
+            <div class="pp-brand">Skill<b>Hub</b></div>
+            <div class="pp-menu">
+              <div class="pp-item active">All Skills</div>
+              <div class="pp-item">Favorites</div>
+              <div class="pp-item">Recycle Bin</div>
+              <div class="pp-item">Market</div>
+              <div class="pp-item">Stats</div>
+            </div>
+            <div class="pp-bottom">
+              <div class="pp-user-name">Luna Chen</div>
+              <div class="pp-user-status"><span class="pp-user-dot" aria-hidden="true"></span>online</div>
+            </div>
+          </aside>
+
+          <section class="pp-main" aria-label="示例列表区域">
+            <div class="pp-search">/ search skills...</div>
+            <div class="pp-title"><span>&gt;</span> skills_console</div>
+            <div class="pp-stats">
+              <div class="pp-stat"><b>24</b><small>Total Skills</small></div>
+              <div class="pp-stat"><b>18</b><small>Active</small></div>
+              <div class="pp-stat"><b>3</b><small>Favorites</small></div>
+            </div>
+            <div class="pp-table">
+              <div class="pp-row head">
+                <div>skill_name</div>
+                <div>category</div>
+                <div>status</div>
+              </div>
+              <div class="pp-row">
+                <div class="pp-name">story_writer_pro/</div>
+                <div class="pp-category">writing</div>
+                <div class="pp-status" aria-label="on"></div>
+              </div>
+              <div class="pp-row">
+                <div class="pp-name">insight_researcher/</div>
+                <div class="pp-category">research</div>
+                <div class="pp-status" aria-label="on"></div>
+              </div>
+              <div class="pp-row">
+                <div class="pp-name">workflow_automator/</div>
+                <div class="pp-category">automation</div>
+                <div class="pp-status off" aria-label="off"></div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="pp-detail" aria-label="示例详情面板">
+            <h4>Skill Detail</h4>
+            <div class="pp-detail-title">story_writer_pro /</div>
+            <p>根据主题快速生成结构化文案草稿，支持语气切换、长度控制与多版本输出。此处为虚拟示例数据。</p>
+            <div class="pp-tags">
+              <span>Read</span>
+              <span>Write</span>
+              <span>Edit</span>
+            </div>
+            <div class="pp-usage">$ /use story_writer_pro<br>$ /use story_writer_pro --verbose</div>
+            <div class="pp-btn">$ edit config</div>
+          </aside>
+        </div>
+      </article>
+    </section>
+
+    <section class="container">
+      <div class="grid metrics reveal">
+        <article class="metric">
+          <strong>一眼看清</strong>
+          <small>把散落在不同目录的 Skills 集中展示，不再来回翻找文件夹。</small>
+        </article>
+        <article class="metric">
+          <strong>集中管理</strong>
+          <small>搜索、分类、收藏、启用/禁用、回收恢复，都在一个界面里完成。</small>
+        </article>
+        <article class="metric">
+          <strong>快速扩展</strong>
+          <small>内置市场能力，支持搜索与安装社区 Skills，减少重复手工操作。</small>
+        </article>
+        <article class="metric">
+          <strong>立即上手</strong>
+          <small>下载 macOS 版，选择你的 Skills 目录，几分钟内进入稳定工作流。</small>
+        </article>
+      </div>
+    </section>
+
+    <section id="features" class="container reveal">
+      <div class="section-head">
+        <h2>不只是管理。是一次体验重构。</h2>
+        <p>从扫描、管理、发现到统计，每一步都更顺手、更可控、更高效。</p>
+      </div>
+      <div class="grid features">
+        <article class="card">
+          <div class="icon">01</div>
+          <h3>全局一眼可见</h3>
+          <p>自动扫描并识别 SKILL.md 信息，把分散目录整理成清晰视图。</p>
+        </article>
+        <article class="card">
+          <div class="icon">02</div>
+          <h3>细节近在手边</h3>
+          <p>列表与详情并排呈现，搜索、分类、收藏与回收都在同一工作流内完成。</p>
+        </article>
+        <article class="card">
+          <div class="icon">03</div>
+          <h3>状态切换，干净利落</h3>
+          <p>启用、禁用、回收与恢复都可追踪，过程清晰，管理更安心。</p>
+        </article>
+        <article class="card">
+          <div class="icon">04</div>
+          <h3>发现好 Skill，更快一步</h3>
+          <p>内置市场能力，支持搜索、预览与安装，让发现与落地一气呵成。</p>
+        </article>
+        <article class="card">
+          <div class="icon">05</div>
+          <h3>推荐机制，更懂场景</h3>
+          <p>多源推荐策略持续带来新发现，让灵感不被重复结果困住。</p>
+        </article>
+        <article class="card">
+          <div class="icon">06</div>
+          <h3>数据会说话</h3>
+          <p>总量、分布、标签与评分一目了然，关键决策更有依据。</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="workflow" class="alt">
+      <div class="container reveal">
+        <div class="section-head">
+          <h2>上手很快，沉浸更快。</h2>
+          <p>四个步骤，从第一次导入到长期复用，都保持同样顺畅。</p>
+        </div>
+        <div class="grid steps">
+          <article class="step">
+            <div class="num">1</div>
+            <h3>选定目录</h3>
+            <p>在 Skills 或 Settings 中选择路径，即刻开始。</p>
+          </article>
+          <article class="step">
+            <div class="num">2</div>
+            <h3>自动解析</h3>
+            <p>系统完成扫描、识别与整理，结果清晰可见。</p>
+          </article>
+          <article class="step">
+            <div class="num">3</div>
+            <h3>轻松治理</h3>
+            <p>分类、收藏、状态切换与回收恢复，操作直观高效。</p>
+          </article>
+          <article class="step">
+            <div class="num">4</div>
+            <h3>一键扩展</h3>
+            <p>在市场发现新能力，直接安装到目标目录。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="market" class="container reveal">
+      <div class="section-head">
+        <h2>熟悉的终端语义。焕新的桌面体验。</h2>
+        <p>保留开发者的思考方式，同时给团队更清晰的可视化表达。</p>
+      </div>
+      <div class="split">
+        <article class="card">
+          <h3>当前版本能力</h3>
+          <ul class="list">
+            <li>已实现：Skills Library / Market / Statistics / Settings</li>
+            <li>已实现：GitHub OAuth 登录与状态持久化</li>
+            <li>已实现：回收站、收藏、右键系统菜单</li>
+            <li>持续规划：Dashboard、Workspaces、云同步与主题系统</li>
+          </ul>
+        </article>
+        <div class="code" role="region" aria-label="架构摘录">
+<pre><code>Main Process: IPC Handlers + Services
+  - ScannerService   -> parse SKILL.md
+  - DatabaseService  -> SQLite + WAL
+  - ConfigService    -> app-config.json
+  - LoggerService    -> rotating logs
+
+Renderer Process: React + HashRouter
+  /skills   /market   /stats   /settings
+
+Data Flow:
+  file system -> scanner -> sqlite -> ipc -> ui</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing" class="alt">
+      <div class="container reveal">
+        <div class="section-head">
+          <h2>先让更多人用起来，再让专业用户更强大。</h2>
+          <p>基础体验先行，高级能力将随 Pro 版本逐步开放。</p>
+        </div>
+        <div class="grid pricing">
+          <article class="card">
+            <div class="tag">现已提供</div>
+            <h3>基础版</h3>
+            <div class="price">Free</div>
+            <p class="muted">适合个人开发者快速上手核心工作流。</p>
+            <ul class="list">
+              <li>本地扫描与可视化管理</li>
+              <li>GitHub 市场搜索与安装</li>
+              <li>基础统计分析</li>
+            </ul>
+          </article>
+          <article class="card" style="border-color: rgba(59,229,143,0.45);">
+            <div class="tag">即将推出</div>
+            <h3>Pro 高级版</h3>
+            <div class="price">Paid</div>
+            <p class="muted">为深度用户带来更强效率与更细治理能力。</p>
+            <ul class="list">
+              <li>批量管理与自动化流程</li>
+              <li>高级统计与分析报表</li>
+              <li>更细粒度策略与审计能力</li>
+            </ul>
+          </article>
+          <article class="card">
+            <div class="tag">企业定制</div>
+            <h3>Team / Enterprise</h3>
+            <div class="price">Custom</div>
+            <p class="muted">适合有合规和安全策略要求的研发组织。</p>
+            <ul class="list">
+              <li>私有部署与插件接入</li>
+              <li>权限策略与组织级管理</li>
+              <li>自定义数据导入导出</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="container reveal">
+      <div class="section-head">
+        <h2>你关心的，我们先回答。</h2>
+        <p>关于版本、开放策略与收费计划的核心问题，都在这里。</p>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>现在可以下载哪些版本？</summary>
+          <p>当前公开下载并完成测试的是 macOS 版本（DMG）。Windows / Linux 版本将按用户反馈与发布节奏逐步推出。</p>
+        </details>
+        <details>
+          <summary>为什么暂不开放源码？</summary>
+          <p>我们现阶段优先把产品体验打磨到位，并快速响应真实使用场景，因此先以可用性与迭代效率为优先，源码暂不开放。</p>
+        </details>
+        <details>
+          <summary>Pro 高级版会带来什么？</summary>
+          <p>Pro 将提供更强的自动化、治理能力与分析深度，按功能分层收费。正式价格与权益会在发布前统一公布。</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="cta container reveal">
+      <div class="box">
+        <h2>现在下载 macOS 版。下一步，交给灵感。</h2>
+        <p>从今天开始，让 Skills 管理更流畅、更可控，也更值得长期投入。</p>
+        <a class="button primary" href="https://github.com/GitHubDiom/SkillHub/releases/download/v1.3.0/SkillHub-Manager-mac.dmg" download>下载 macOS 版</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot">
+      <span>© <span id="year"></span> SkillHub Team. Built for Claude Code power users.</span>
+      <span class="foot-links">
+        <a href="#features">Highlights</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+
+    menuToggle?.addEventListener('click', () => {
+      const open = navLinks.classList.toggle('open');
+      menuToggle.setAttribute('aria-expanded', String(open));
+    });
+
+    navLinks?.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        menuToggle?.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+  </script>
+</body>
+</html>
