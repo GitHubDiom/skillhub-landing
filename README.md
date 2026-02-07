@@ -6,7 +6,7 @@ SkillHub Manager 是一款面向 Claude Code 用户的本地 Skills 管理桌面
 
 ## 下载
 
-- [macOS 版（DMG）](https://github.com/GitHubDiom/SkillHub/releases/download/v1.3.0/SkillHub-Manager-mac.dmg) — v1.3.0 测试版
+- [macOS 版（DMG）](https://github.com/GitHubDiom/skillhub-landing/releases/download/v1.0.0/SkillHub-Manager-mac.dmg) — v1.0.0
 - Windows / Linux 版本即将推出
 
 ## 核心功能
