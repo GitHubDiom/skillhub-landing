@@ -934,7 +934,7 @@
         <a href="#workflow">上手路径</a>
         <a href="#pricing">版本与定价</a>
         <a href="#faq">FAQ</a>
-        <a class="button primary" href="https://github.com/GitHubDiom/skillhub-landing/releases/download/v1.0.0/SkillHub-Manager-mac.dmg" download>下载 macOS 版</a>
+        <a class="button primary" href="https://github.com/GitHubDiom/SkillHub/releases/download/v1.5.0/SkillHub-Manager-mac.dmg" download>下载 macOS 版</a>
       </nav>
     </div>
   </header>
@@ -942,7 +942,7 @@
   <main>
     <section id="hero" class="container hero reveal">
       <div>
-        <div class="badge">● v1.3.0 macOS 测试版 现已开放下载</div>
+        <div class="badge">● v1.5.0 macOS 测试版 现已开放下载</div>
         <h1>Skills，焕然一新。</h1>
         <p class="lead">
           SkillHub Manager 为重度 Claude Code 用户而生。
@@ -950,7 +950,7 @@
           你熟悉的终端语义，配上更优雅的桌面体验。当前仅提供并测试 macOS DMG 版本。
         </p>
         <div class="hero-actions">
-          <a class="button primary" href="https://github.com/GitHubDiom/skillhub-landing/releases/download/v1.0.0/SkillHub-Manager-mac.dmg" download>立即下载 macOS 版</a>
+          <a class="button primary" href="https://github.com/GitHubDiom/SkillHub/releases/download/v1.5.0/SkillHub-Manager-mac.dmg" download>立即下载 macOS 版</a>
           <a class="button secondary" href="#pricing">查看高级版计划</a>
         </div>
         <p class="muted">为开发者与技术团队打造</p>
@@ -1038,7 +1038,7 @@
         </article>
         <article class="metric">
           <strong>快速扩展</strong>
-          <small>内置市场能力，支持搜索与安装社区 Skills，减少重复手工操作。</small>
+          <small>内置浏览器市场，支持搜索、预览与 Git Clone 安装社区 Skills。</small>
         </article>
         <article class="metric">
           <strong>立即上手</strong>
@@ -1071,7 +1071,7 @@
         <article class="card">
           <div class="icon">04</div>
           <h3>发现好 Skill，更快一步</h3>
-          <p>内置市场能力，支持搜索、预览与安装，让发现与落地一气呵成。</p>
+          <p>内置浏览器直接预览仓库，支持单 Skill、集合、插件等多种类型识别，一键 clone 到本地。</p>
         </article>
         <article class="card">
           <div class="icon">05</div>
@@ -1111,7 +1111,7 @@
           <article class="step">
             <div class="num">4</div>
             <h3>一键扩展</h3>
-            <p>在市场发现新能力，直接安装到目标目录。</p>
+            <p>在内置浏览器中预览仓库，选择需要的 Skills 一键 Clone 安装。</p>
           </article>
         </div>
       </div>
@@ -1127,23 +1127,29 @@
           <h3>当前版本能力</h3>
           <ul class="list">
             <li>已实现：Skills Library / Market / Statistics / Settings</li>
-            <li>已实现：GitHub OAuth 登录与状态持久化</li>
+            <li>已实现：GitHub Device Flow 安全登录，无需暴露密钥</li>
+            <li>已实现：内置浏览器市场，支持仓库预览与 Git Clone 安装</li>
+            <li>已实现：智能识别仓库类型（单 Skill / 集合 / 插件 / 混合）</li>
+            <li>已实现：集成管理，一键生成 Claude / Codex / Cursor 配置</li>
             <li>已实现：回收站、收藏、右键系统菜单</li>
             <li>持续规划：Dashboard、Workspaces、云同步与主题系统</li>
           </ul>
         </article>
         <div class="code" role="region" aria-label="架构摘录">
 <pre><code>Main Process: IPC Handlers + Services
-  - ScannerService   -> parse SKILL.md
-  - DatabaseService  -> SQLite + WAL
-  - ConfigService    -> app-config.json
-  - LoggerService    -> rotating logs
+  - ScannerService      -> parse SKILL.md
+  - DatabaseService     -> SQLite + WAL
+  - ConfigService       -> app-config.json
+  - IntegrationWriter   -> Claude/Codex/Cursor
+  - GitCloneService     -> sparse checkout
+  - LoggerService       -> rotating logs
 
 Renderer Process: React + HashRouter
   /skills   /market   /stats   /settings
 
 Data Flow:
-  file system -> scanner -> sqlite -> ipc -> ui</code></pre>
+  file system -> scanner -> sqlite -> ipc -> ui
+  github api  -> webview -> clone  -> local</code></pre>
         </div>
       </div>
     </section>
@@ -1162,7 +1168,8 @@ Data Flow:
             <p class="muted">适合个人开发者快速上手核心工作流。</p>
             <ul class="list">
               <li>本地扫描与可视化管理</li>
-              <li>GitHub 市场搜索与安装</li>
+              <li>内置浏览器市场搜索与 Clone 安装</li>
+              <li>集成管理（Claude / Codex / Cursor）</li>
               <li>基础统计分析</li>
             </ul>
           </article>
@@ -1217,7 +1224,7 @@ Data Flow:
       <div class="box">
         <h2>现在下载 macOS 版。下一步，交给灵感。</h2>
         <p>从今天开始，让 Skills 管理更流畅、更可控，也更值得长期投入。</p>
-        <a class="button primary" href="https://github.com/GitHubDiom/skillhub-landing/releases/download/v1.0.0/SkillHub-Manager-mac.dmg" download>下载 macOS 版</a>
+        <a class="button primary" href="https://github.com/GitHubDiom/SkillHub/releases/download/v1.5.0/SkillHub-Manager-mac.dmg" download>下载 macOS 版</a>
       </div>
     </section>
   </main>
